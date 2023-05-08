@@ -6,6 +6,10 @@ namespace Infrastructure.DataAccess
 {
     public class ProductDbContext : DbContext, IApplicationDbContext
     {
-        public DbSet<Product> Products { get; }
+        public ProductDbContext(DbContextOptions<ProductDbContext> options) : base(options)
+        {
+
+        }
+        public DbSet<Product> Products { get; set; }
     }
 }

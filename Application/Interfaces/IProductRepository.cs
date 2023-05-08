@@ -2,7 +2,7 @@
 
 namespace Application.Intefaces
 {
-    public interface IProductService : IRepository<Product>
+    public interface IProductRepository : IRepository<Product>
     {
     }
 }
