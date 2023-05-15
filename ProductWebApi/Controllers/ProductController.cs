@@ -1,5 +1,6 @@
 ﻿using Application.Intefaces;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProductWebApi.Controllers;
@@ -17,12 +18,13 @@ public class ProductController : ControllerBase
 
     [HttpGet]
     [Route("[action]")]
+    [Authorize(Roles = "ProductGet")]
     public async Task<IActionResult> GetById(int id)
     {
         try
         {
 
-            Product product = await _productService.GetByIdAsync(id);
+            Product product = await _productService.GetAsync(x => x.ProductId == id);
 
             return Ok(new Response() { Result = product });
         }
@@ -36,8 +38,9 @@ public class ProductController : ControllerBase
             });
         }
     }
-    [HttpGet("GetAll")]
+    [HttpGet]
     [Route("[action]")]
+    [Authorize(Roles = "ProductGetAll")]
     public async Task<IActionResult> GetAllProducts(int page = 1, int pageSize = 10)
     {
         try
@@ -68,6 +71,7 @@ public class ProductController : ControllerBase
 
     [HttpPost]
     [Route("[action]")]
+    [Authorize(Roles = "ProductCreate")]
     public async Task<IActionResult> Create([FromBody] Product product)
     {
         if (ModelState.IsValid)
@@ -85,6 +89,7 @@ public class ProductController : ControllerBase
 
     [HttpPut]
     [Route("[action]")]
+    [Authorize(Roles = "ProductUpdate")]
     public async Task<IActionResult> Update([FromBody] Product entity)
     {
         try
@@ -114,6 +119,7 @@ public class ProductController : ControllerBase
 
     [HttpDelete]
     [Route("[action]")]
+    [Authorize(Roles = "ProductDelete")]
     public async Task<IActionResult> Delete([FromQuery] int Id)
     {
         try

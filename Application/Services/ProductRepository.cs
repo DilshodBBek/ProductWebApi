@@ -46,10 +46,10 @@ public class ProductRepository : IProductRepository
         return Task.FromResult(queryable);
     }
 
-    public Task<Product?> GetByIdAsync(int id)
+    public Task<Product?> GetAsync(Expression<Func<Product, bool>> expression)
     {
 
-        Product? product = _dbContext.Products.FirstOrDefault(x => x.ProductId == id);
+        Product? product = _dbContext.Products.FirstOrDefault(expression);
         return Task.FromResult(product);
     }
 
