@@ -28,7 +28,6 @@ public class ProductRepository : IProductRepository
         await _dbContext.Products.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
         return true;
-
     }
 
     public async Task<bool> DeleteAsync(int id)

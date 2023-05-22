@@ -1,4 +1,4 @@
-﻿using Application.Intefaces;
+﻿using Application.Extensions;
 using Application.Interfaces;
 using Domain.Models;
 using Domain.Models.Token;
@@ -6,6 +6,8 @@ using Domain.Models.UserCredentials;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using System.Data;
 
 namespace ProductWebApi.Controllers;
 
@@ -17,50 +19,83 @@ public class UserController : ControllerBase
     private readonly IUserRepository _userRepository;
     private readonly ITokenService _tokenService;
 
-    public UserController(IUserRepository userRepository, ITokenService tokenService)
+    readonly IDiagnosticContext _diagnosticContext;
+    public UserController(IUserRepository userRepository, ITokenService tokenService, IDiagnosticContext diagnosticContext)
     {
         _userRepository = userRepository;
         _tokenService = tokenService;
+        Log.Verbose("UserController  is started.");
+        _diagnosticContext = diagnosticContext;
     }
+
+
 
     [HttpPost]
     [AllowAnonymous]
     [Route("Login")]
     public async Task<IActionResult> Login([FromBody] UserCredential credential)
     {
-        string HashPassword = _userRepository.ComputeHash(credential.Password);
+        string HashPassword = credential.Password.ComputeHash();
         User user = (await _userRepository.GetAsync(x => x.Username == credential.UserName &&
                                                          x.Password == HashPassword));
 
+        Log.Warning("This is Warning");
 
         if (user is null)
         {
-            return NotFound("User not found!");
+            return NotFound("Not found Objects");
         }
-        Token token = new()
-        {
-            AccessToken = await _tokenService.CreateAccessToken(user),
-            RefreshToken = "1243h2k3jhf2j3h4k"
-        };
-        return Ok(token);
+        Tokens token = await _tokenService.CreateTokensAsync(user);
+
+        return Ok();
     }
 
     [HttpPost]
+    [AllowAnonymous]
+    [Route("Refresh")]
+    public async Task<IActionResult> Refresh([FromBody] Tokens tokens)
+    {
+        var principal = _tokenService.GetClaimsFromExpiredToken(tokens.AccessToken);
+        string? username = principal.Identity?.Name;
+        if (username == null)
+        {
+            return NotFound("Refresh token not found!");
+        }
+        RefreshToken? savedRefreshToken = _tokenService.Get(x => x.Username == username &&
+                                                  x.RefreshTokenValue == tokens.RefreshToken)
+                                                 .FirstOrDefault();
+
+        if (savedRefreshToken == null)
+        {
+            return BadRequest("Refresh token or Access token invalid!");
+        }
+        if (savedRefreshToken.ExpiredDate < DateTime.UtcNow)
+        {
+            _tokenService.Delete(savedRefreshToken);
+            return StatusCode(405, "Refresh token already expired");
+        }
+        Tokens newTokens = await _tokenService.CreateTokensFromRefresh(principal, savedRefreshToken);
+
+        return Ok(newTokens);
+
+    }
+    [HttpPost]
     [Route("Create")]
-    //[Authorize(Roles = "CreateUser")]
+    // [Authorize(Roles = "CreateUser")]
     public async Task<IActionResult> Create([FromBody] User user)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest();
         }
-        
+
         return await _userRepository.CreateAsync(user) ? Ok() : BadRequest();
 
     }
 
     [HttpGet]
     [Route("GetAll")]
+    //[Authorize(Roles = "GetAllUsers")]
     public async Task<IActionResult> GetAll()
     {
         var res = (await _userRepository.GetAllAsync()).Include(x => x.UserRoles).Select(x => new
@@ -75,6 +110,18 @@ public class UserController : ControllerBase
         });
         return Ok(res);
 
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [Route("Logger")]
+    [ValidateModel]
+    public async Task<IActionResult> Logger([FromBody] UserCredential credential)
+    {
+        _diagnosticContext.Set("CatalogLoadTime", 1423);
+        Log.Debug("this is LogDebug");
+       await _userRepository.GetAllAsync();
+        return Ok();
     }
 
 }

@@ -2,7 +2,7 @@
 
 namespace Domain.Models.Token;
 
-public class Token
+public class Tokens
 {
     [JsonPropertyName("access_token")]
     public string AccessToken { get; set; }

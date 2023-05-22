@@ -1,5 +1,6 @@
 ﻿using Application.Abstraction;
 using Domain.Models;
+using Domain.Models.Token;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataAccess;
@@ -16,12 +17,9 @@ public class ProductDbContext : DbContext, IApplicationDbContext
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
-
+    public DbSet<RefreshToken> RefreshToken { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder.Entity<User>().Navigation(x => x.UserRoles).AutoInclude();
-        //modelBuilder.Entity<UserRole>().Navigation(x => x.Role).AutoInclude();
-        //modelBuilder.Entity<Role>().Navigation(x => x.RolePermissions).AutoInclude();
-        //modelBuilder.Entity<RolePermission>().Navigation(x => x.Permission).AutoInclude();
+        modelBuilder.Entity<User>().HasIndex(option => option.Username).IsUnique();
     }
 }

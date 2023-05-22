@@ -71,7 +71,7 @@ public class ProductController : ControllerBase
 
     [HttpPost]
     [Route("[action]")]
-    [Authorize(Roles = "ProductCreate")]
+   // [Authorize(Roles = "ProductCreate")]
     public async Task<IActionResult> Create([FromBody] Product product)
     {
         if (ModelState.IsValid)

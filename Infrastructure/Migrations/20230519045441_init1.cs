@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class init1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,7 +26,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Products",
+                name: "product",
                 columns: table => new
                 {
                     product_id = table.Column<int>(type: "integer", nullable: false)
@@ -36,7 +37,22 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Products", x => x.product_id);
+                    table.PrimaryKey("PK_product", x => x.product_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "refresh_token",
+                columns: table => new
+                {
+                    refresh_token_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    refresh_token_value = table.Column<string>(type: "text", nullable: false),
+                    expired_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_refresh_token", x => x.refresh_token_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -143,7 +159,10 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "product");
+
+            migrationBuilder.DropTable(
+                name: "refresh_token");
 
             migrationBuilder.DropTable(
                 name: "role_permission");

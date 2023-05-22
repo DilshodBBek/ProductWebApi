@@ -12,9 +12,13 @@ public class Product
     [JsonPropertyName("product_id")]
     public int ProductId { get; set; }
     [Column("name")]
+    [MaxLength(5, ErrorMessage = "Name lenth must be max=5")]
     public string Name { get; set; }
     [Column("description")]
+    [MaxLength(5, ErrorMessage = "Description lenth must be max=5")]
+
     public string Description { get; set; }
     [Column("price")]
     public decimal Price { get; set; }
+
 }

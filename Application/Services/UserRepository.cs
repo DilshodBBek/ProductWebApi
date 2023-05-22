@@ -1,10 +1,10 @@
 ﻿using Application.Abstraction;
+using Application.Extensions;
 using Application.Interfaces;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Security.Cryptography;
-using System.Text;
+
 
 namespace Application.Services;
 
@@ -16,22 +16,6 @@ internal class UserRepository : IUserRepository
     {
         _DbContext = userRepository;
     }
-
-    public string ComputeHash(string input)
-    {
-        using SHA256 sha256 = SHA256.Create();
-        byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-        byte[] hashBytes = sha256.ComputeHash(inputBytes);
-
-        StringBuilder builder = new();
-        for (int i = 0; i < hashBytes.Length; i++)
-        {
-            builder.Append(hashBytes[i].ToString("x2"));
-        }
-
-        return builder.ToString();
-    }
-
     public async Task<bool> CreateAsync(User entity)
     {
         var roles = new List<UserRole>();
@@ -43,7 +27,7 @@ internal class UserRepository : IUserRepository
             });
         }
         entity.UserRoles = roles;
-        entity.Password = ComputeHash(entity.Password);
+        entity.Password = entity.Password.ComputeHash();
         await _DbContext.Users.AddAsync(entity);
         int result = await _DbContext.SaveChangesAsync();
         return result > 0;
@@ -63,6 +47,7 @@ internal class UserRepository : IUserRepository
 
     public Task<IQueryable<User>> GetAllAsync(Expression<Func<User, bool>>? expression = null)
     {
+        throw new NotImplementedException("GetAllAsync exception");
         return expression == null ? Task.FromResult(_DbContext.Users.AsQueryable()) :
                                     Task.FromResult(_DbContext.Users.Where(expression));
     }

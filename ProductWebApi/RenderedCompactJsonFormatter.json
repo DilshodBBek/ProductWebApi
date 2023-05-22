@@ -1,0 +1,3 @@
+{"@t":"2023-05-19T05:19:12.5460840Z","@m":"Application started!","@i":"f996d7e9"}
+{"@t":"2023-05-19T05:19:13.6139344Z","@m":"HTTP \"GET\" \"/swagger/index.html\" responded 200 in 183.6719 ms","@i":"62d0885c","RequestMethod":"GET","RequestPath":"/swagger/index.html","StatusCode":200,"Elapsed":183.6719,"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware"}
+{"@t":"2023-05-19T05:19:14.3524476Z","@m":"HTTP \"GET\" \"/swagger/v1/swagger.json\" responded 200 in 103.2338 ms","@i":"62d0885c","RequestMethod":"GET","RequestPath":"/swagger/v1/swagger.json","StatusCode":200,"Elapsed":103.2338,"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware"}
