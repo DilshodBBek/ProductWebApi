@@ -9,8 +9,6 @@ public class UserDTO
 {
     [JsonPropertyName("user_id")]
     public int UsersId { get; set; }
-
-    
     public string Username { get; set; }
 
     [DataType(DataType.Password)]
