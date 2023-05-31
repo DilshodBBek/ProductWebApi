@@ -47,7 +47,7 @@ public class UserController : ControllerBase
         }
         Tokens token = await _tokenService.CreateTokensAsync(user);
 
-        return Ok();
+        return Ok(token);
     }
 
     [HttpPost]

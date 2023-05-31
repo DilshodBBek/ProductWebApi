@@ -40,7 +40,7 @@ public class TokenService : ITokenService
         {
             foreach (RolePermission permission in role.Role.RolePermissions)
             {
-                claims.Add(new Claim(ClaimTypes.Role, permission.Permission?.PermissionName));
+                claims.Add(new Claim(ClaimTypes.Name, permission.Permission?.PermissionName));
             }
         }
         claims = claims.Distinct().ToList();

@@ -39,9 +39,9 @@ public class ProductRepository : IProductRepository
 
     }
 
-    public Task<IQueryable<Product>> GetAllAsync(Expression<Func<Product, bool>>? expression=null)
+    public Task<IQueryable<Product>> GetAllAsync(Expression<Func<Product, bool>>? expression = null)
     {
-        IQueryable<Product> queryable = _dbContext.Products;
+        IQueryable<Product> queryable = expression == null ? _dbContext.Products : _dbContext.Products.Where(expression);
         return Task.FromResult(queryable);
     }
 

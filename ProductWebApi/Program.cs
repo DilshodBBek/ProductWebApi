@@ -17,34 +17,34 @@ public class Program
 
         //try
         //{
-            Log.Information("Application started!");
+        Log.Information("Application started!");
 
-            builder.Host.UseSerilog();
+        builder.Host.UseSerilog();
 
-            builder.Services.AddControllers();
-            IConfiguration configuration = builder.Configuration;
+        builder.Services.AddControllers();
+        IConfiguration configuration = builder.Configuration;
 
-            builder.Services.AddInfrastructure(configuration);
-            builder.Services.AddApplication(configuration);
+        builder.Services.AddInfrastructure(configuration);
+        builder.Services.AddApplication(configuration);
 
-            var app = builder.Build();
+        var app = builder.Build();
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        app.UseSerilogRequestLogging();
 
-            app.UseSerilogRequestLogging();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+        app.UseFileServer();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseCustomHandler();
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-            app.UseFileServer();
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseCustomHandler();
-
-            app.MapControllers();
-            app.Run();
+        app.MapControllers();
+        app.Run();
         //}
         //catch (Exception ex)
         //{

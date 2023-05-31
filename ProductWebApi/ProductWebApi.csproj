@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Filters\ApiExceptionFilterAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="CustomAttributes\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>

@@ -1,7 +1,11 @@
 ﻿using Application.Intefaces;
+using Application.Models;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using ProductWebApi.Filters;
+using System.Runtime.Versioning;
 
 namespace ProductWebApi.Controllers;
 
@@ -26,52 +30,54 @@ public class ProductController : ControllerBase
 
             Product product = await _productService.GetAsync(x => x.ProductId == id);
 
-            return Ok(new Response() { Result = product });
+            return Ok();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return StatusCode(500, new Response()
-            {
-                Message = e.Message,
-                StatusCode = 500,
-                IsSuccess = false,
-            });
+            return StatusCode(500);
         }
     }
     [HttpGet]
     [Route("[action]")]
-    [Authorize(Roles = "ProductGetAll")]
-    public async Task<IActionResult> GetAllProducts(int page = 1, int pageSize = 10)
+    [AuthFilter(Name = "sds")]
+    public async Task<ActionResult<Response<PaginatedList<Product>>>> GetAllProducts(int page = 1, int pageSize = 10)
     {
-        try
-        {
-            IQueryable<Product> Products = await _productService.GetAllAsync();
+        IQueryable<Product> Products = await _productService.GetAllAsync();
 
-            var products = Products.OrderBy(x => x.ProductId).Skip((page - 1) * pageSize).Take(pageSize);
+        PaginatedList<Product> products = await PaginatedList<Product>.CreateAsync(Products, page, pageSize);
 
-            Response res = new()
-            {
-                Result = products,
-                pageSize = pageSize,
-                page = page
-            };
-            return Ok(res);
-        }
-        catch (Exception e)
+        Response<PaginatedList<Product>> res = new()
         {
-            return StatusCode(500, new Response()
-            {
-                Message = e.Message,
-                StatusCode = 500,
-                IsSuccess = false,
-            });
-        }
+            Result = products
+        };
+        return Ok(res);
+
 
     }
 
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<Response<PaginatedList<Product>>>> Search(string text, int page =1, int pageSize=10)
+    {
+        var Products= await _productService.GetAllAsync(x=>x.Price.ToString().Contains(text)
+                                                   ||x.Description.Contains(text)
+                                                   ||x.Name.Contains(text));
+
+        PaginatedList<Product> products = await PaginatedList<Product>.CreateAsync(Products, page, pageSize);
+
+        Response<PaginatedList<Product>> res = new()
+        {
+            Result = products
+        };
+        return Ok(res);
+
+
+    }
     [HttpPost]
     [Route("[action]")]
-   // [Authorize(Roles = "ProductCreate")]
+    [AuthFilter(Name = "CreateProduct")]    
+    //[Authorize(Roles = "ProductCreate")]
     public async Task<IActionResult> Create([FromBody] Product product)
     {
         if (ModelState.IsValid)
@@ -98,21 +104,13 @@ public class ProductController : ControllerBase
             {
                 bool isSuccess = await _productService.UpdateAsync(entity);
                 if (isSuccess)
-                    return Ok(new Response()
-                    {
-                        Result = entity
-                    });
+                    return Ok();
             }
             return BadRequest();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(new Response()
-            {
-                Message = ex.Message,
-                IsSuccess = false,
-                StatusCode = 400
-            });
+            return BadRequest();
         }
 
     }
@@ -122,31 +120,14 @@ public class ProductController : ControllerBase
     [Authorize(Roles = "ProductDelete")]
     public async Task<IActionResult> Delete([FromQuery] int Id)
     {
-        try
+        if (ModelState.IsValid)
         {
-            if (ModelState.IsValid)
-            {
-                bool isSuccess = await _productService.DeleteAsync(Id);
-                if (isSuccess)
-                    return Ok(new Response());
-            }
-            return BadRequest(new Response()
-            {
-                Message = "Not deleted",
-                IsSuccess = false,
-                StatusCode = 400
-            });
+            bool isSuccess = await _productService.DeleteAsync(Id);
+            if (isSuccess)
+                return Ok();
+        }
+        return BadRequest("Not deleted");
 
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new Response()
-            {
-                Message = ex.Message,
-                IsSuccess = false,
-                StatusCode = 400
-            });
-        }
 
     }
 }
