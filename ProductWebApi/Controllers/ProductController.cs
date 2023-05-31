@@ -39,7 +39,6 @@ public class ProductController : ControllerBase
     }
     [HttpGet]
     [Route("[action]")]
-    [AuthFilter(Name = "sds")]
     public async Task<ActionResult<Response<PaginatedList<Product>>>> GetAllProducts(int page = 1, int pageSize = 10)
     {
         IQueryable<Product> Products = await _productService.GetAllAsync();
@@ -75,8 +74,7 @@ public class ProductController : ControllerBase
 
     }
     [HttpPost]
-    [Route("[action]")]
-    [AuthFilter(Name = "CreateProduct")]    
+    [Route("[action]")]   
     //[Authorize(Roles = "ProductCreate")]
     public async Task<IActionResult> Create([FromBody] Product product)
     {

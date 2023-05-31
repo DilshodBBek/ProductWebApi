@@ -24,7 +24,10 @@ namespace ProductWebApi.Filters
         public ClaimRequirementAttribute(string claimType, string claimValue) : base(typeof(ClaimRequirementFilter))
         {
             Arguments = new object[] { new Claim(claimType, claimValue) };
+            
         }
+
+        
     }
 
     public class ClaimRequirementFilter : IAuthorizationFilter
