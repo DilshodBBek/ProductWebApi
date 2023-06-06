@@ -58,7 +58,6 @@ public class ProductRepository : IProductRepository
     {
 
         Product? product = _dbContext.Products.FirstOrDefault(expression);
-        _distributedCache.SetStringAsync(_key, queryable.AsEnumerable().ToString());
 
         return Task.FromResult(product);
     }
